@@ -24,21 +24,27 @@ public class PlayerMovement : MonoBehaviour
     public LayerMask wallLayer;
     public float wallSlideSpeed = 2f;
     bool isWallSliding;
-
-    // Start is called before the first frame update
-    void Start()
-    {
-
-    }
+    bool isWallJumping;
+    float wallJumpDirection;
+    float wallJumpTime = 0.2f;
+    float wallJumpTimer;
+    public Vector2 wallJumpPower = new Vector2(5f, 10f);
 
     // Update is called once per frame
     void Update()
-    {
-        rb.linearVelocity = new Vector2(horizontalMovement * moveSpeed, rb.linearVelocity.y);
+    {        
+
         GroundCheck();
         Gravity();
-        Flip();
         wallSlide();
+        ProcessWallJump();
+
+        if(!isWallJumping)
+        {        
+        rb.linearVelocity = new Vector2(horizontalMovement * moveSpeed, rb.linearVelocity.y);
+        Flip();
+        }
+
     }
 
     public void Move(InputAction.CallbackContext context)
@@ -63,6 +69,24 @@ public class PlayerMovement : MonoBehaviour
             jumpsRemaining--;
         }
         }
+        //wall jump
+        if(context.performed && wallJumpTimer > 0f)
+        {
+            isWallJumping = true;
+            rb.linearVelocity = new Vector2(wallJumpDirection * wallJumpPower.x, wallJumpPower.y);
+            wallJumpTimer = 0;
+
+            //force flip
+            if(transform.localScale.x != wallJumpDirection)
+            {
+                isFacingRight = !isFacingRight;
+                Vector3 ls = transform.localScale;
+                ls.x *= -1f;
+                transform.localScale = ls;
+            }
+
+            Invoke(nameof(cancelWallJump), wallJumpTime + 0.1f);
+        }
     }
 
     private void GroundCheck()
@@ -78,13 +102,6 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireCube(groundCheckPos.position, groundCheckSize);
-        Gizmos.color = Color.blue;
-        Gizmos.DrawWireCube(wallCheckPos.position, wallCheckSize);
-    }
 
     private void Gravity()
     {
@@ -96,6 +113,7 @@ public class PlayerMovement : MonoBehaviour
         else
         {
             rb.gravityScale = baseGravity;
+            isGrounded = false;
         }
     }
 
@@ -118,7 +136,7 @@ public class PlayerMovement : MonoBehaviour
     private void wallSlide()
     {
         //Not gorunded/on a wall/movement ! = 0
-        if(!isGrounded & wallCheck() & horizontalMovement != 0)
+        if(!isGrounded && wallCheck() && horizontalMovement != 0)
         {
             isWallSliding = true;
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, Mathf.Max(rb.linearVelocity.y, -wallSlideSpeed));
@@ -127,6 +145,35 @@ public class PlayerMovement : MonoBehaviour
         {
             isWallSliding = false;
         }
+    }
+    
+    private void ProcessWallJump()
+    {
+        if(isWallSliding)
+        {
+            isWallJumping = false;
+            wallJumpDirection = -transform.localScale.x;
+            wallJumpTimer = wallJumpTime;
+
+            CancelInvoke(nameof(cancelWallJump));
+        }
+        else if (wallJumpTimer > 0f)
+        {
+            wallJumpTimer -=Time.deltaTime;
+        }
+    }
+    private void cancelWallJump()
+    {
+        isWallJumping = false;
+    }
+    
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireCube(groundCheckPos.position, groundCheckSize);
+        Gizmos.color = Color.blue;
+        Gizmos.DrawWireCube(wallCheckPos.position, wallCheckSize);
     }
 
 }
