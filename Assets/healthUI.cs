@@ -1,0 +1,41 @@
+using UnityEngine;
+using System.Collections.Generic;
+using UnityEngine.UI;
+
+public class healthUI : MonoBehaviour
+{
+    public Image heartPrefab;
+    public Sprite fullHeartSprite;
+    public Sprite emptyHeartSprite;
+    private List<Image> hearts = new List<Image>();
+
+    public void SetMaxHearts(int maxHearts)
+    {
+        foreach(Image heart in hearts)
+        {
+            Destroy(heart.gameObject);
+        }
+
+        for (int i = 0; i < maxHearts; i++)
+        {
+            Image newHeart = Instantiate(heartPrefab, transform);
+            newHeart.sprite = fullHeartSprite;
+            hearts.Add(newHeart);
+        }
+    }
+
+    public void UpdateHearts(int currentHealth)
+    {
+        for (int i = 0; i < hearts.Count; i++)
+        {
+            if(i < currentHealth)
+            {
+                hearts[i].sprite = fullHeartSprite;
+            }
+            else
+            {
+                hearts[i].sprite = emptyHeartSprite;
+            }
+        }
+    }
+}
