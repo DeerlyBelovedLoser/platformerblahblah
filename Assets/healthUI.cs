@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine.UI;
 
-public class healthUI : MonoBehaviour
+public class HealthUI : MonoBehaviour
 {
     public Image heartPrefab;
     public Sprite fullHeartSprite;
