@@ -9,6 +9,8 @@ public class playerHealth : MonoBehaviour
     public float jumpPower = 10f;
     public int maxHealth = 3;
     private int currentHealth;
+    public GameObject gameOverPanel;
+
 
     public HealthUI healthUI;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -37,6 +39,11 @@ public class playerHealth : MonoBehaviour
         if(currentHealth <= 0)
         {
             //player up bein unalived #quirky
+            Debug.Log("Player died");
+
+            gameOverPanel.SetActive(true); //SHOW GAME OVER
+
+            Time.timeScale = 0f; //pause game 
         }
     }
 }
