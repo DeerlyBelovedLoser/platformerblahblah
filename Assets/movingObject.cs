@@ -22,6 +22,9 @@ public class movingObject : MonoBehaviour
         if(transform.position == nextPosition)
         { 
             nextPosition = (nextPosition == pointA.position) ? pointB.position : pointA.position;
+            Vector3 ls = transform.localScale;
+                ls.x *= -1f;
+                transform.localScale = ls;
         }
     }
 }
